@@ -7,3 +7,4 @@ playwright-report/
 .DS_Store
 *.log
 /scripts/run-and-report-cucumber.js
+
