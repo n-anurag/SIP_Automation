@@ -11,6 +11,8 @@ const CURRENT_OBJECT = "SIP";  // matches your JSON file name
 // ---------------
 // -------------
 
+//new change
+
 Given('I open the SIP login page', async function (this: CustomWorld) {
   const url = getPageUrl(CURRENT_OBJECT);
   if (!url) throw new Error(`URL missing in ${CURRENT_OBJECT}.json`);
