@@ -1,0 +1,1126 @@
+﻿
+$(document).ready(function () {
+    document.querySelector('.space').addEventListener('input', evt => {
+        
+        evt.target.value = evt.target.value.replace(/[^a-z\s]/ig, '').replace(/\s{2,}/g, ' ');
+    });
+    $('#SourceOfFundIfOthers').hide();
+    $('[name="SourceOfFund"]').change(function () {
+        var id = this.id;
+        if (id == "enablebox") {
+            $('#OthersDiv').show();
+            $('#SpecifyOtherSource').prop('required', true);
+        } else {
+            $('#OthersDiv').hide();
+            $('#SpecifyOtherSource').prop('required', false);
+        }
+    });
+
+    $("#Self").click(function () {
+        if ($("#FullName").val() == "" || $("#Mobile").val() == "") {
+            ErrorModalShow('Name and contact no not defined yet. Please enter valid boid first.', '', 'ClientId');
+            return false;
+        }
+
+        if ($(this).is(":checked")) {
+            $("#PayeeName").val($("#FullName").val());
+            $("#PayeeContact").val($("#Mobile").val());
+            $("#PayeeName").prop('readonly', true);
+            $("#PayeeContact").prop('readonly', true);
+            return true;
+        }
+        else {
+            $("#PayeeName").val("");
+            $("#PayeeContact").val("");
+            $("#PayeeName").prop('readonly', false);
+            $("#PayeeContact").prop('readonly', false);
+            return true;
+        }
+    });
+
+    //disable cut, copy, paste
+    $('#FieldId').bind("cut copy paste", function (e) {
+        e.preventDefault();
+        ErrorModalShow("You cannot paste into BOID section.", 'ClientId', 'ClientId');
+        $('#FieldId').bind("contextmenu", function (e) {
+            e.preventDefault();
+        });
+    });
+
+    //prevent text allow number only
+    $('#ClientId').on('input', function (e) {
+        e.preventDefault();
+        $(this).val($(this).val().replace(/[^0-9]/g, ''));
+        BOIDValid($(this).val($(this).val().replace(/[^0-9]/g, '')), $('#PageFor').val());
+    });
+});
+
+function SelfCheck() {
+    $("#PayeeName").val("");
+    $("#PayeeContact").val("");
+    $("#PayeeName").prop('readonly', false);
+    $("#PayeeContact").prop('readonly', false);
+    $("#Self").prop("checked", false);
+}
+
+function ValidateKey(inputValue) {
+    if (inputValue.value.charAt(0) == " ") {
+        $("#" + inputValue.id).val('');
+        return false;
+    }
+    return false;
+}
+function ValidateEmail(inputText)
+{
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(inputText)) {
+        return true;
+    }
+    ErrorModalShow('You have entered an invalid email address!');
+    $("#Email").val("");
+    return false;
+}
+//#region Field Validation
+function ErrorModalShow(message = "", emptyFieldId = "", focusFieldId = "")
+{
+    if (message != "") {
+        $("#SignUpModalLabel").html(message);
+        $("#modal-content").prop('class', 'modal-content bg-danger text-white');
+        $("#SignUpModal").modal('show');
+        setTimeout(function () {
+            $("#SignUpModal").modal('hide');
+            if (emptyFieldId != "") {
+                $('#' + emptyFieldId).val("");
+            }
+            if (focusFieldId != "") {
+                $('#' + focusFieldId).focus();
+            }
+        }, 2500);
+    }
+}
+
+function SuccessModalShow(message = "", emptyFieldId = "", focusFieldId = "") {
+    if (message != "") {
+        $("#SignUpModalLabel").html(message);
+        $("#modal-content").prop('class', 'modal-content bg-success text-white');
+        $("#SignUpModal").modal('show');
+        setTimeout(function () {
+            $("#SignUpModal").modal('hide');
+            if (emptyFieldId != "") {
+                $('#' + emptyFieldId).val("");
+            }
+            if (focusFieldId != "") {
+                $('#' + focusFieldId).focus();
+            }
+        }, 2500);
+    }
+}
+
+function onlyAlphaSpace(e) {
+    var x = e.which || e.keycode;
+    if ((x >= 65 && x <= 90) || (x >= 97 && x <= 123) || x == 32) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function restrictAlphabets(e) {
+    var x = e.which || e.keycode;
+    if ((x >= 48 && x <= 57))
+        return true;
+    else
+        return false;
+}
+
+function mobileno(inputValue) {
+    var number = inputValue.value;
+    var noLength = number.length;
+
+    if (noLength >= 2) {
+        var firstTwoDigit = number.substring(0, 2);
+        if (firstTwoDigit == '98' || firstTwoDigit == '97' || firstTwoDigit == '96') {
+            return true;
+        } else {
+            ErrorModalShow('Invalid No.', inputValue.id, inputValue.id);
+            return false;
+        }
+    }
+}
+
+function mobileLength(inputValue)
+{
+    var number = inputValue.value;
+    var noLength = number.length;
+    if (noLength > 0) {
+        if (noLength > 10 || noLength < 10) {
+            ErrorModalShow('Invalid No.', inputValue.id, '');
+        }
+    }
+}
+
+function phoneLength(inputValue) {
+    var number = inputValue.value;
+    var noLength = number.length;
+    if (noLength > 0) {
+        if (noLength > 9 || noLength < 9) {
+            ErrorModalShow('Invalid No.', inputValue.id, '');
+        }
+    }
+}
+
+function onlyNumber(e) {
+    var x = e.which || e.keycode;
+    if ((x >= 48 && x <= 57))
+        return true;
+    else
+        return false;
+}
+
+
+//#endregion Field Validation
+
+//#region Value Validation
+
+function BOIDLength(inputValue) {
+    console.log(inputValue.length);
+    if (inputValue.length < 16 || inputValue.length>0) {
+
+        ErrorModalShow('Invalid BOID.', 'ClientId', '');
+    }
+}
+function BOIDLength(inputValue, valueFor) {
+    if (inputValue.length < 16) {
+        EmptyFields(valueFor);
+        ErrorModalShow('Invalid BOID.', 'ClientId', '');
+    }
+}
+
+function EmptyFields(valueFor) {
+    if (valueFor == 'SignUP')
+    {
+        $("#FullName").val("");
+        $("#DOB").val("");
+        $("#IsExisting").val("False");
+
+        $("#CitizenshipNumber").val("");
+        $("#Email").val("");
+        $("#EmailTemp").val("");
+        $("#Mobile").val("");
+    }
+}
+
+function BOIDValid(inputValue, valueFor) {
+    var boid = inputValue;
+    var boidLength = boid.length;
+    if (boidLength != 0) {
+        if (boidLength == 3) {
+            if (boid != "130") {
+                EmptyFields(valueFor);
+                ErrorModalShow('Invalid BOID.', 'ClientId', 'ClientId');
+                return false;
+            }
+        }
+        else if (boidLength == 8) {
+            CheckDP(boid);
+            return false;
+        }
+        else if (boidLength == 16) {
+            CheckUser(boid, valueFor);
+            return true;
+        }
+    };
+}
+
+let timerOn = true;
+function timer(remaining, fors) {
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+
+    m = m < 10 ? '0' + m : m;
+    s = s < 10 ? '0' + s : s;
+    document.getElementById('Get').innerHTML = m + ':' + s;
+    remaining -= 1;
+
+    if (remaining >= 0 && timerOn) {
+        $("#Get").prop('disabled', true);
+        $("#Get").removeAttr('onclick', '');
+        setTimeout(function () {
+            timer(remaining, fors);
+        }, 1000);
+        return;
+    }
+    else {
+        $("#Get").prop('disabled', false);
+        $("#Get").attr('onclick', 'GetOTP('+fors+')');
+        document.getElementById('Get').innerHTML = 'Resend OTP';
+        return;
+    }
+}
+
+var navXhr = null;
+function GetNAV(inputValue) {
+    if (navXhr != null) {
+        navXhr.abort();
+    }
+
+    var schemeDetail = $("#SchemeId").val();
+    var applyDate = inputValue.value;
+
+    navXhr = $.ajax({
+        url: "Nav",
+        type: "post",
+
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                $('input:hidden[name="NIBLAntiForgery"]').val());
+        },
+        data: {
+            SchemeId: schemeDetail,
+            ApplyDate: applyDate
+        },
+        success: function (response, textStatus, jqXHR) {
+            var result = JSON.parse(response.jsonData);
+            if (result.Code == 200) {
+                var n = new Date();
+                y = n.getFullYear();
+                m = n.getMonth() + 1;
+                d = n.getDate();
+                if (m.toString().length == 1) {
+                    m = '0' + m;
+                }
+                if (d.toString().length == 1) {
+
+                    d = '0' + d;
+                }
+                var today = y + '-' + m + '-' + d
+                if (applyDate == today) {
+                    $("#NAV").val(result.Data.NAV);
+                    $("#NAVDate").val(result.Data.NavDate);
+                    return true;
+                } else {
+
+                    $('#ApplyDate').val('');
+                    $('#NAV').val('');
+                    ErrorModalShow('Please Enter valid date', '', '');
+                }
+            } else {
+                $('#ApplyDate').val("");
+                $("#NAV").val("");
+                $("#NAVDate").val("");
+                ErrorModalShow('Nav Not Defined', '', '');
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+        },
+        complete: function () { }
+    });
+}
+
+var checkDPXhr = null;
+function CheckDP(inputValue) {
+    var clientId = inputValue;
+    if (checkDPXhr != null) {
+        checkDPXhr.abort();
+    }
+    checkDPXhr = $.ajax({
+        url: "/CheckDP",
+        type: "post",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                $('input:hidden[name="NIBLAntiForgery"]').val());
+        },
+        data: {
+            ClientId: clientId
+        },
+        success: function (response, textStatus, jqXHR) {
+            var result = JSON.parse(response.jsonData);
+            if (result.Code == 200) {
+                return true;
+            }
+            else {
+                ErrorModalShow(result.Message, 'ClientId', 'ClientId');
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+
+            //alert("Something went wrong, Select Crew Type Again.");
+        },
+        complete: function () { }
+    });
+
+}
+
+var checkUserXhr = null;
+var checkFundXhr = null;
+function CheckUser(inputValue, valueFor) {
+    if (checkUserXhr != null) {
+        checkUserXhr.abort();
+    }
+    var clientId = inputValue;
+    if (clientId != "") {
+        $("#ConfirmModalLabel").html('Confirm Your BOID ' + '"<span class="text-danger">' + clientId + '</span>"');
+        $("#ConfirmModal-content").prop('class', 'modal-content bg-white text-dark');
+        $("#Footer1").show();
+        $("#Footer2").hide();
+        $("#ConfirmBOID").modal('show');
+
+        $("#Reconfirm").off().on('click', function () {
+            $(".UserDetail").hide();
+            $("#ConfirmBOID").modal('hide');
+            $("#ClientId").val("");
+            $("#ClientId").focus();
+
+            $("#DOB").val("");
+            $("#FullName").val("");
+            $("#CitizenshipNo").val("");
+            $("#IsExisting").val("False");
+
+            $("#Email").val("");
+            $("#Mobile").val("");
+
+            $("#Self").prop("checked", false);
+            $("#PayeeName").val("");
+            $("#PayeeContact").val("");
+
+            var PageFor = $("#PageFor").val();
+            if (valueFor == "SIPINS") {
+                $("#InstallmentDiv").hide();
+                $("#GatewayDiv").hide();
+                $("#SubmitInstallment").prop("disabled", true);
+            }
+        });
+
+        $("#Reconfirm2").off().on('click', function () {
+            $(".UserDetail").hide();
+            $("#ConfirmBOID").modal('hide');
+            $("#ClientId").val("");
+            $("#ClientId").focus();
+
+            $("#DOB").val("");
+            $("#FullName").val("");
+            $("#CitizenshipNo").val("");
+            $("#IsExisting").val("False");
+
+            $("#Email").val("");
+            $("#Mobile").val("");
+
+            $("#Self").prop("checked", false);
+            $("#PayeeName").val("");
+            $("#PayeeContact").val("");
+
+            var PageFor = $("#PageFor").val();
+            if (valueFor == "SIPINS") {
+                $("#InstallmentDiv").hide();
+                $("#GatewayDiv").hide();
+                $("#SubmitInstallment").prop("disabled", true);
+            }
+        });
+
+        $("#Confirm2").off().on('click', function () {
+            $("#ConfirmBOID").modal('hide');
+        });
+        $("#Confirm").off().on('click', function () {
+            $("#ConfirmBOID").modal('hide');
+            checkUserXhr = $.ajax({
+                url: "/ExistingUserDetails",
+                type: "post",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                        $('input:hidden[name="NIBLAntiForgery"]').val());
+                },
+                data: {
+                    ClientId: clientId
+                },
+                success: function (response, textStatus, jqXHR) {
+                    var result = JSON.parse(response.jsonData);
+                    console.log(result);
+                    if (result.Code == 200) {
+                        $(".UserDetail").hide();
+                        if (valueFor == 'SIP') {
+                            if (result.Data.IsSIP === 'True') {
+                                ErrorModalShow("SIP already registerd for this BOID " + " <b>" + clientId + "</b>", 'ClientId', 'ClientId');
+                                $("#DOB").val("");
+                                $("#FullName").val("");
+                                $("#FullName").focus();
+                                $("#CitizenshipNo").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#Email").val("");
+                                $("#Mobile").val("");
+
+                                $("#Self").prop("checked", false);
+                                $("#PayeeName").val("");
+                                $("#PayeeContact").val("");
+
+                                return true;
+                            }
+                        }
+                        else if (valueFor == 'SIPINS') {
+                            if (result.Data.IsSIP != 'True') {
+                                ErrorModalShow("SIP Registration Details Not Found.", 'ClientId', 'ClientId');
+                                $("#FullName1").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#Email1").val("");
+                                $("#Mobile1").val("");
+                                $("#mainTable").html('');
+                                $("#TotalAmount").val('0.0');
+                                $("#PersonalDetail").hide();
+                                $("#InstallmentDiv").hide();
+                                $("#GatewayDiv").hide();
+
+                                return true;
+                            }
+
+                            $("#PersonalDetail").show();
+
+                            $("#FullName1").val(result.Data.FullName).prop("readonly", true);
+                            $("#Email1").val(result.Data.Email).prop("readonly", true);
+                            $("#Mobile1").val(result.Data.Mobile).prop("readonly", true);
+
+                            if (checkFundXhr != null) {
+                                checkFundXhr.abort();
+                            }
+
+                            //var totalInstallment = new SearchFundCollection(clientId);
+                            var totalInstallment = 0;
+                            var Cancellation = result.Data.Iscancellation;
+                            console.log(Cancellation);
+                            checkFundXhr = $.ajax({
+                                url: "/SIP/GetFundCollection",
+                                type: "post",
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                                        $('input:hidden[name="NIBLAntiForgery"]').val());
+                                },
+                                data: { BOID: clientId },
+                                success: function (response, textStatus, jqXHR) {
+                                    $("#mainTable").html(response);
+                                    $('#mainTable').attr('class', 'card-body mainTable');
+                                    totalInstallment = $("#totalRowsOfFundCollection").val();
+                                    console.log(Cancellation);
+                                    if (Cancellation == 'True') {
+                                        $("#mainTable").html('');
+                                        $("#TotalAmount").val('0.0');
+                                        $("#InstallmentDiv").hide();
+                                        $("#GatewayDiv").hide();
+                                        var partialResult = partialCheckUser(result, clientId);
+                                        if (partialResult) {
+                                            $("#errorText").html("SIP is cancelled.").show();
+                                            //ErrorModalShow("SIP installment due not found.", '', '');
+                                        }
+
+                                        $("#SubmitInstallment").prop("disabled", true);
+                                    } else {
+                                        if (totalInstallment > 1) {
+                                            $("#InstallmentDiv").show();
+                                            $("#TotalAmount").val('0.0');
+                                            $("#GatewayDiv").show();
+                                            partialCheckUser(result, clientId);
+                                            $("#errorText").html("").hide();
+                                            $("#SubmitInstallment").prop("disabled", true);
+                                        }
+                                        else if (totalInstallment <= 1) {
+                                            $("#mainTable").html('');
+                                            $("#TotalAmount").val('0.0');
+                                            $("#InstallmentDiv").hide();
+                                            $("#GatewayDiv").hide();
+                                            var partialResult = partialCheckUser(result, clientId);
+                                            if (partialResult) {
+                                                $("#errorText").html("SIP installment due not found.").show();
+                                                //ErrorModalShow("SIP installment due not found.", '', '');
+                                            }
+
+                                            $("#SubmitInstallment").prop("disabled", true);
+                                        }
+                                    }
+                                    
+
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+
+                                    //alert("Something went wrong, Select Crew Type Again.");
+                                },
+                                complete: function () {
+                                }
+                            });
+                            return true;
+                        }
+                        else if (valueFor == 'DReP') {
+                            if (result.Data.IsDReP == 'True') {
+                                ErrorModalShow("Dividend Re-Investment Plan Already Registered To " + clientId + ".", 'ClientId', 'ClientId');
+                                $("#FullName1").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#Email1").val("");
+                                $("#EmailTemp").val("");
+                                $("#Mobile1").val("");
+
+                                $("#PersonalDetail").hide();
+                                $("#OTPDetail").hide();
+                                $("#SubmitDetail").hide();
+
+                                return true;
+                            }
+                            else {
+                                $("#FullName1").val(result.Data.FullName);
+                                $("#IsExisting").val("True");
+
+                                $("#Email1").val(result.Data.Email);
+                                $("#EmailTemp").val(result.Data.TempEmail);
+                                $("#Mobile1").val(result.Data.Mobile);
+
+                                $("#PersonalDetail").show();
+                                $("#OTPDetail").show();
+                                $("#SubmitDetail").show();
+
+                                return true;
+                            }
+                        }
+                        else if (valueFor == 'SignUP') {
+                            if (result.Data.IsTakeLn == 'True')
+                            {
+                                ErrorModalShow("Login already taken to " + clientId + ".", 'ClientId', 'ClientId');
+                                $("#FullName").val("");
+                                $("#DOB").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#CitizenshipNumber").val("");
+                                $("#Email").val("");
+                                $("#EmailTemp").val("");
+                                $("#Mobile").val("");
+                                $('#Get').prop('disabled', true);
+
+                                return true;
+                            }
+                            else
+                            {
+                                $("#FullName").val(result.Data.FullName);
+                                $("#DOB").val(result.Data.DOB);
+                                $("#IsExisting").val("True");
+
+                                $("#CitizenshipNumber").val(result.Data.CitizenshipNo);
+                                $("#Email").val(result.Data.Email);
+                                $("#EmailTemp").val(result.Data.TempEmail);
+                                $("#Mobile").val(result.Data.Mobile);
+
+                                if ($("#DOB").val() != '') {
+                                    $("#DOB").prop("readonly", true);
+                                }
+                                else {
+                                    $("#DOB").prop("readonly", false);
+                                }
+                                if ($("#FullName").val() != '') {
+                                    $("#FullName").prop("readonly", true);
+                                    $("#ClientId").prop("readonly", true);
+                                }
+                                else {
+                                    $("#FullName").prop("readonly", false);
+                                    $("#ClientId").prop("readonly", false);
+                                }
+                                if ($("#CitizenshipNumber").val() != '') {
+                                    $("#CitizenshipNumber").prop("readonly", true);
+                                }
+                                else {
+                                    $("#CitizenshipNumber").prop("readonly", false);
+                                }
+                                if ($("#Mobile").val() != '') {
+                                    $("#Mobile").prop("readonly", true);
+                                }
+                                else {
+                                    $("#Mobile").prop("readonly", false);
+                                }
+
+                                $('#Get').prop('disabled', false);
+
+                                return true;
+                            }
+                        }
+
+                        partialCheckUser(result, clientId);
+                        return true;
+                    }
+                    else {
+                        if (result.Message == "Depository participants (DP) not found.")
+                        {
+                            $(".UserDetail").hide();
+                            $("#DOB").prop("required", true);
+                            $("#FullName").prop("required", true);
+                            $("#CitizenshipNo").prop("required", true);
+                            $("#DOB").val("");
+                            $("#FullName").val("");
+                            $("#FullName").focus();
+                            $("#CitizenshipNo").val("");
+                            $("#IsExisting").val("False");
+                            $("#CitizenshipNumber").val("");
+
+                            $("#Email").val("");
+                            $("#EmailTemp").val("");
+                            $("#Mobile").val("");
+
+                            $("#Self").prop("checked", false);
+                            $("#PayeeName").val("");
+                            $("#PayeeContact").val("");
+                            if (valueFor == 'SIPINS') {
+                                $("#FullName").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#Email1").val("");
+                                $("#Mobile1").val("");
+
+                                $("#TotalAmount").val('0.0');
+                                $("#FullName1").val('');
+                                $("#Email1").val('');
+                                $("#Mobile1").val('');
+                                $("#mainTable").html('');
+                                $("#PersonalDetail").hide();
+                                $("#InstallmentDiv").hide();
+                                $("#GatewayDiv").hide();
+                            }
+
+                            ErrorModalShow(result.Message, 'ClientId', 'ClientId');
+                            return false;
+                        }
+                        else if (result.Message == "Client not found.")
+                        {
+                            $(".UserDetail").show();
+                            $("#DOB").prop("required", true);
+                            $("#FullName").prop("required", true);
+                            $("#CitizenshipNo").prop("required", true);
+                            $("#DOB").val("");
+                            $("#FullName").val("");
+                            $("#FullName").focus();
+                            $("#CitizenshipNo").val("");
+                            $("#CitizenshipNumber").val("");
+                            $("#IsExisting").val("False");
+
+                            $("#Email").val("");
+                            $("#EmailTemp").val("");
+                            $("#Mobile").val("");
+
+                            $("#Self").prop("checked", false);
+                            $("#PayeeName").val("");
+                            $("#PayeeContact").val("");
+
+                            if (result.Data.OldDirty == "Yes" || result.Data.OldBOTransferFound == "Yes") {
+                                $(".bothHide").hide();
+                                $("#bothHideModal").modal('show');
+                                $("#ClientId").val("");
+                                //$("#ClientId").focus();
+                                return false;
+                            }
+                            else {
+                                $(".bothHide").show();
+                                $("#bothHideModal").modal('hide');
+                            }
+
+                            if (valueFor == 'SIPINS') {
+                                ErrorModalShow("SIP Registration Details Not Found.", 'ClientId', 'ClientId');
+                                $("#FullName").val("");
+                                $("#IsExisting").val("False");
+
+                                $("#TotalAmount").val('0.0');
+                                $("#FullName1").val('');
+                                $("#Email1").val('');
+                                $("#Mobile1").val('');
+                                $("#mainTable").html('');
+                                $("#PersonalDetail").hide();
+                                $("#InstallmentDiv").hide();
+                                $("#GatewayDiv").hide();
+                            }
+                            else if (valueFor == 'SignUP' || valueFor == 'DReP') {
+                                ErrorModalShow("Unitholder not found.", 'ClientId', 'ClientId');
+                            }
+                            else if (valueFor == 'UP' || valueFor == 'SIP') {
+                                $("#ConfirmModalLabel").html('Please Re-Confirm Your BOID ' + '"<span class="text-danger">' + clientId + '</span>". Please Proceed On Your Own Descrition ');
+                                $("#ConfirmModal-content").prop('class', 'modal-content bg-white text-dark');
+                                $("#Footer1").hide();
+                                $("#Footer2").show();
+                                $("#ConfirmBOID").modal('show');
+                            }
+                            return false;
+                        } else {
+                            $("#Self").prop("checked", false);
+                            $("#PayeeName").val("");
+                            $("#PayeeContact").val("");
+                            ErrorModalShow(result.Message, '', '');
+                            return false;
+                        }
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                    //alert("Something went wrong, Select Crew Type Again.");
+                },
+                complete: function () { }
+            });
+        })
+    }
+}
+
+function partialCheckUser(result, clientId) {
+    $(".UserDetail").show();
+    if (result.Data.DataFrom == "1") {
+        //$("#ConfirmModalLabel").html('Please Re-Confirm Your BOID ' + '"<span class="text-danger">' + clientId + '</span>"');
+        //$("#ConfirmModal-content").prop('class', 'modal-content bg-white text-dark');
+        //$("#Footer1").hide();
+        //$("#Footer2").show();
+        //$("#ConfirmBOID").modal('show');
+    }
+    else if (result.Data.DataFrom == "2") {
+        
+        $("#DOB").prop("required", true);
+        $("#FullName").prop("required", true);
+        $("#CitizenshipNo").prop("required", true);
+        $("#Gender").prop("required", true);
+        $("#DOB").val(result.Data.DOB);
+        $("#FullName").val(result.Data.FullName);
+        $("#CitizenshipNo").val(result.Data.CitizenshipNo);
+        if ($("#DOB").val() != '') {
+            $("#DOB").prop("readonly", true);
+        }
+        else {
+            $("#DOB").prop("readonly", false);
+        }
+        if ($("#FullName").val() != '') {
+        $("#FullName").prop("readonly", true);
+        $("#ClientId").prop("readonly", true);
+    }
+    else {
+        $("#FullName").prop("readonly", false);
+        $("#ClientId").prop("readonly", false);
+    }
+        if ($("#CitizenshipNo").val() != '') {
+            $("#CitizenshipNo").prop("readonly", true);
+        }
+        else {
+            $("#CitizenshipNo").prop("readonly", false);
+        }
+
+        $("#IsExisting").val("False");
+
+        $("#Email").val(result.Data.Email);
+        $("#EmailTemp").val(result.Data.TempEmail);
+        $("#Mobile").val(result.Data.Mobile);
+
+        $("#Self").prop("checked", false);
+        $("#PayeeName").val("");
+        $("#PayeeContact").val("");
+
+        //$("#ConfirmModalLabel").html('Please Re-Confirm Your BOID ' + '"<span class="text-danger">' + clientId + '</span>"');
+        //$("#ConfirmModal-content").prop('class', 'modal-content bg-white text-dark');
+        //$("#Footer1").hide();
+        //$("#Footer2").show();
+        //$("#ConfirmBOID").modal('show');
+
+        return true;
+    }
+    else if (result.Data.DataFrom == "3") {
+        $("#DOB").prop("required", true);
+        $("#FullName").prop("required", true);
+        $("#CitizenshipNo").prop("required", true);
+        $("#DOB").val("");
+        $("#FullName").val("");
+        $("#CitizenshipNo").val("");
+        $("#IsExisting").val("False");
+
+        $("#Email").val("");
+        $("#EmailTemp").val("");
+        $("#Mobile").val("");
+
+        $("#Self").prop("checked", false);
+        $("#PayeeName").val("");
+        $("#PayeeContact").val("");
+        return true;
+    }
+    $("#DOB").prop("required", false);
+    $("#FullName").prop("required", false);
+    $("#CitizenshipNo").prop("required", false);
+    $("#DOB").val("");
+
+    $("#FullName").val(result.Data.FullName);
+    $("#CitizenshipNo").val(result.Data.CitizenshipNo);
+
+    $("#IsExisting").val("True");
+    $("#Email").val(result.Data.Email).prop("disabled", false);
+    $("#EmailTemp").val(result.Data.TempEmail);
+    $("#Mobile").val(result.Data.Mobile).prop("disabled", false);
+
+    if ($("#DOB").val() != '') {
+        $("#DOB").prop("readonly", true);
+    }
+    else {
+        $("#DOB").prop("readonly", false);
+    }
+    if ($("#FullName").val() != '') {
+        $("#FullName").prop("readonly", true);
+        $("#ClientId").prop("readonly", true);
+    }
+    else {
+        $("#FullName").prop("readonly", false);
+        $("#ClientId").prop("readonly", false);
+    }
+    if ($("#CitizenshipNo").val() != '') {
+        $("#CitizenshipNo").prop("readonly", true);
+    }
+    else {
+        $("#CitizenshipNo").prop("readonly", false);
+    }
+
+    $("#Self").prop("checked", false);
+    $("#PayeeName").val("");
+    $("#PayeeContact").val("");
+    return true;
+}
+
+var otpXhr = null;
+function GetOTP(otpfor) {
+    if (otpXhr != null) {
+        otpXhr.abort();
+    }
+    var email = $("#EmailTemp").val();
+    var mobileNo = $("#Mobile").val();
+    var ClientId = $("#ClientId").val();
+    //var otpfor = 18;
+    var payeename = $("#PayeeName").val();
+    var payeecontact = $("#PayeeContact").val();
+
+    $("#otpAnimation").show();
+    $("#otpLoading").show();
+
+    $("#otpSent").hide();
+    $("#otpSendFailed").hide();
+    $("#otpVerified").hide();
+    $("#otpVerifiedFailed").hide();
+
+    var errorCount = 0;
+    var fields;
+    if (otpfor == 1) {
+        fields = ["ApplyDate", "NAV", "ClientId", "FullName", "Mobile", "Email", "DOB", "ProvinceId", "DistrictId", "PayeeName", "PayeeContact"];
+    }
+    else if (otpfor == 2) {
+        fields = ["ClientId", "FullName", "CitizenshipNo", "Mobile", "Email", "DOB", "ProvinceId", "DistrictId", "HowKnow", "PayeeName", "PayeeContact"];
+    }
+    else if (otpfor == 4) {
+        fields = ["ClientId", "FullName", "CitizenshipNumber", "Mobile", "Email", "DOB"]; 
+    }
+
+    if (otpfor == 1 || otpfor == 2 || otpfor == 4) {
+        for (var i = 0; i < fields.length; i++) {
+            if ($("#" + fields[i]).val() == "") {
+                $("#" + fields[i]).prop("style", "box-shadow:0px 1px 0px red !important");
+                errorCount++;
+            }
+            else {
+                $("#" + fields[i]).prop("style", "");
+            }
+        }
+    }
+
+    if (errorCount > 0) {
+        ErrorModalShow('All fields are required', '', '');
+        $("#otpAnimation").hide();
+        $("#otpLoading").hide();
+
+        $("#otpSent").hide();
+        $("#otpSendFailed").hide();
+        $("#otpVerified").hide();
+        $("#otpVerifiedFailed").hide();
+        return false;
+    }
+
+    if (email != "" && ClientId != "" && payeename != "" && payeecontact != "") {
+        $("#otpAnimation").show();
+        $("#otpLoading").show();
+        $("#Get").attr("disabled", true);
+        otpXhr = $.ajax({
+            url: "/SendOTP",
+            type: "post",
+
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                    $('input:hidden[name="NIBLAntiForgery"]').val());
+            },
+            data: { Email: email, MobileNo: mobileNo, OTPfor: otpfor, ClientId: ClientId },
+            success: function (response, textStatus, jqXHR) {
+                var result = JSON.parse(response.jsonData);
+                if (result.Code == 200) {
+
+                    $("#otpAnimation").show();
+                    $("#otpLoading").hide();
+                    $("#otpSent").show();
+
+
+                    $("#otpSendFailed").hide();
+                    $("#otpVerified").hide();
+                    $("#otpVerifiedFailed").hide();
+
+                    $("#Verify").removeClass('d-none');
+                    //$("#Get").addClass('d-none');
+                    $("#OTP").removeAttr('disabled');
+                    timer(120, otpfor);
+
+                    if (otpfor == 1 || otpfor == 2 || otpfor == 4) {
+                        for (var i = 0; i < fields.length; i++) {
+                            $("#" + fields[i]).prop("readonly", true);
+                        }
+                        $("#Email").prop("readonly", true);
+                    }
+
+                    return true;
+                } else {
+                    $("#otpAnimation").show();
+                    $("#otpLoading").hide();
+                    $("#otpSent").hide();
+
+                    $("#otpSendFailed").show();
+                    $("#otpVerified").hide();
+                    $("#otpVerifiedFailed").hide();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                //alert("Something went wrong, Select Crew Type Again.");
+            },
+            complete: function () { }
+        });
+    } else {
+        ErrorModalShow('All fields are required', '', '');
+        $("#otpAnimation").hide();
+        $("#otpLoading").hide();
+
+        $("#otpSent").hide();
+        $("#otpSendFailed").hide();
+        $("#otpVerified").hide();
+        $("#otpVerifiedFailed").hide();
+        return false;
+    }
+}
+
+var verifyOtpXhr = null;
+function VerifyOTP(otpfor) {
+    if (verifyOtpXhr != null) {
+        verifyOtpXhr.abort();
+    }
+    var otp = $("#OTP").val();
+    var otplength = otp.length;
+    var errorCount = 0;
+    var errorString = "Please";
+    if (otp == "" || otplength < 6) {
+        ErrorModalShow('OTP Incorrect', 'OTP', 'OTP');
+        return false;
+    }
+
+    var email = $("#EmailTemp").val();
+    var mobileNo = $("#Mobile").val();
+    //var otpfor = 18;
+    verifyOtpXhr = $.ajax({
+        url: "/VerifyOTP",
+        type: "post",
+
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                $('input:hidden[name="NIBLAntiForgery"]').val());
+        },
+        data: { Email: email, MobileNo: mobileNo, OTPfor: otpfor, OTP: otp },
+        success: function (response, textStatus, jqXHR) {
+            var result = JSON.parse(response.jsonData);
+            if (result.Code == 200) {
+                
+                $("#otpAnimation").show();
+                $("#otpLoading").hide();
+                $("#otpSent").hide();
+                $("#otpSendFailed").hide();
+                $("#otpVerified").show();
+                $("#otpVerifiedFailed").hide();
+                $("#Verify").addClass('d-none');
+                $("#Get").addClass('d-none');
+                $("#OTP").addClass("disabled-next");
+                $("#AfterVerified").removeClass("disabled-next");
+                $("#OTP").prop('readonly', true);
+                $('.DisableField').prop('disabled', false);
+                $('#IsVerified').val('1');
+
+                if (otpfor == '4') {
+                    $("#FullName").prop('readonly', true);
+                    $("#DOB").prop('readonly', true);
+
+                    $("#CitizenshipNumber").prop('readonly', true);
+                    $("#Email").prop('readonly', true);
+                    $("#EmailTemp").prop('readonly', true);
+                    $("#Mobile").prop('readonly', true);
+                    $("#ProceedToSignUp").removeClass("disabled-next");
+                }
+                $("#ClientId").prop('readonly', true);
+                return true;
+            } else {
+                $("#otpAnimation").show();
+                $("#otpLoading").hide();
+                $("#otpSent").hide();
+
+                $("#otpSendFailed").hide();
+                $("#otpVerified").hide();
+                $("#otpVerifiedFailed").show();
+                $('#IsVerified').val('');
+                $('.DisableField').prop('disabled', true);
+                if (otpfor == '4') {
+                    $("#ProceedToSignUp").addClass("disabled-next");
+                }
+                if (result.Status == "Expired") {
+                    $("#errOTPMsg").html(result.Message);
+                }
+                else {
+                    $("#errOTPMsg").html("OTP did not verified");
+                }
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            //alert("Something went wrong, Select Crew Type Again.");
+        },
+        complete: function () { }
+    });
+
+}
+
+//#endregion AJAX Calling
+
+
+
+//#region Master Data
+var districtXhr = null;
+function GetDistrict(inputValue) {
+    if (districtXhr != null) {
+        districtXhr.abort();
+    }
+    $("#DistrictId").empty();
+    $("#DistrictId").append("<option selected>Loading....</option>");
+    districtXhr = $.ajax({
+        url: "/District",
+        type: "post",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN-NIBL",
+                $('input:hidden[name="NIBLAntiForgery"]').val());
+        },
+        data: { ProvinceId: inputValue },
+        success: function (response, textStatus, jqXHR) {
+            var result = JSON.parse(response.jsonData);
+            if (result.Code == 200) {
+                $("#DistrictId").empty();
+                $("#DistrictId").append(result.Data.DDL);
+                return true;
+            }
+            else {
+                ErrorMessage(result.Status, result.Message);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+
+            //alert("Something went wrong, Select Crew Type Again.");
+        },
+        complete: function () {
+        }
+    });
+}
+
+
+//#endregion Master Data

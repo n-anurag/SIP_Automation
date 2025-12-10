@@ -1,0 +1,9 @@
+node_modules/
+.env
+reports/
+test-results/
+playwright-report/
+.vscode/
+.DS_Store
+*.log
+/scripts/run-and-report-cucumber.js

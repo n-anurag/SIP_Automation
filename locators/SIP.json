@@ -1,0 +1,81 @@
+{
+  "pageName": "Meroshare/login",
+  "url": "https://mutualfund.nimbacecapital.com/Client/Login",
+  "locators": [
+    
+    {
+      "name": "username",
+      "locator": "//input[@id='Username']"
+    },
+    {
+      "name": "password",
+      "locator": "//input[@id='Password']"
+    },
+    {
+      "name": "login_button",
+      "locator": "//button[@type='submit']"
+    },
+    {
+      "name": "sidebar",
+      "locator": "(//button[@type='button'])[1]"
+    },
+    {
+      "name": "sip_icon",
+      "locator": "svg[data-icon='arrow-up-wide-short']"
+    },
+     {
+      "name": "sip_payment",
+      "locator": "//a[normalize-space()='SIP Payment']"
+    },
+    {
+      "name": "checkbox",
+      "locator": "(//input[@type='checkbox'])[1]"
+    },
+    {
+      "name": "agree",
+      "locator": "(//input[@type='checkbox'])[4]"
+    },
+
+    {
+      "name": "sip_pin",
+      "locator": "(//input[@type='password'])"
+    },
+    {
+      "name": "checkbox_proceed",
+      "locator": "//button[normalize-space()='Proceed']"
+    },
+    {
+      "name": "proceed",
+      "locator": "//button[normalize-space()='Proceed For Payment']"
+    },
+     {
+      "name": "esewa",
+      "locator": "//img[@src='/images/e-sewa.jpg']"
+    },
+     {
+      "name": "esewa",
+      "locator": "(//img[@class=\"me-3\"])[1]"
+    },
+     {
+      "name": "proceed_payment_esewa",
+      "locator": " //button[normalize-space()='Proceed to Payment']"
+    },
+    {
+      "name": "captcha",
+      "locator": "//div[@class='recaptcha-checkbox-border']"
+    },
+    {
+      "name": "esewa_id",
+      "locator": "//input[@placeholder='eSewa ID']"
+    },
+    {
+      "name": "esewa_password",
+      "locator": "//input[@placeholder='Password/MPIN']"
+    },
+     {
+      "name": "captcha",
+      "locator": "(//div[@role='presentation'])[1]"
+    }
+
+  ]
+}
