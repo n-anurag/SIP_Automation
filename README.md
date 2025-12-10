@@ -39,3 +39,5 @@ Return to the test runner and close browser when done
 This is necessary because CAPTCHA and OTP cannot be automated.
 
 📸 Test Report
+<img width="1669" height="774" alt="image" src="https://github.com/user-attachments/assets/96cd3d6c-27fd-498b-9375-d6aefe5f9436" />
+It failed because no installments are pending..
