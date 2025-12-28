@@ -99,26 +99,6 @@ When ('I click on screen',
 });
 
 
-// When('I click on {string} button',
-//   async function (this: CustomWorld, fieldName: string) {
-
-//     // Check if Ordinary Share exists
-//     const ipoRow = this.page.locator("//div[@class='company-name']/child::span[6]");
-
-//     if (await ipoRow.count() > 0) {
-//       console.log("IPO found: Ordinary Share available");
-      
-//       // Now click Apply only when IPO exists
-//       const applyBtn = await getValidatedLocator(this.page, CURRENT_OBJECT, fieldName);
-//       await applyBtn.click();
-//       await this.page.waitForTimeout(2000);
-
-//     } else {
-//       console.log("No IPO found — apply button NOT clicked");
-//       return;  // safely stop here
-//     }
-// });
-
 
 When('I fill in {string} with {string}',
   async function (this: CustomWorld, fieldName: string, value: string) {
